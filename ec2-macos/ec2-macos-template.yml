@@ -1,0 +1,47 @@
+Parameters:
+  pAllowedIpCidr:
+    Type: String
+    AllowedPattern: '((\d{1,3})\.){3}\d{1,3}/\d{1,2}'
+    Default: '0.0.0.0/0'
+  pKeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+  pVpcId:
+    Type: AWS::EC2::VPC::Id
+Resources:
+  rEc2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: macOS EC2 instance security group 
+      VpcId: !Ref pVpcId
+      SecurityGroupIngress: 
+      - CidrIp: !Ref pAllowedIpCidr
+        IpProtocol: tcp
+        FromPort: 22 
+        ToPort: 22
+      SecurityGroupEgress: 
+      - CidrIp: !Ref pAllowedIpCidr
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22 
+  rDedicatedHost:
+    Type: AWS::EC2::Host
+    Properties: 
+      AutoPlacement: 'on'
+      AvailabilityZone: us-east-1a
+      InstanceType: mac1.metal
+  rEc2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      BlockDeviceMappings: 
+      - DeviceName: /dev/disk0
+        Ebs: 
+          Encrypted: false
+          VolumeSize: 8
+          VolumeType: gp3
+      HostId: !Ref rDedicatedHost
+      ImageId: ami-023f74f1accd0b25b
+      InstanceType: mac1.metal
+      KeyName: !Ref pKeyPairName
+      SecurityGroupIds: 
+      - !Ref rEc2SecurityGroup
+      Tenancy: dedicated
