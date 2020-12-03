@@ -36,8 +36,8 @@ Resources:
       - DeviceName: /dev/disk0
         Ebs: 
           Encrypted: false
-          VolumeSize: 8
-          VolumeType: gp3
+          VolumeSize: 200 
+          VolumeType: gp2
       HostId: !Ref rDedicatedHost
       ImageId: ami-023f74f1accd0b25b
       InstanceType: mac1.metal
